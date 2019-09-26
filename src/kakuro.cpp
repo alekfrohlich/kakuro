@@ -1,39 +1,71 @@
+/* MIT License
+ * 
+ * Copyright (c) 2019 Alek Frohlich, Nicolas Goeldner
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ * This program solves kakuro boards using backtracking.
+ */
+
+
 #include <iostream>
 
-#define BLACK 0         // Black position.
-#define WHITE 1         // White position.
+#define BLACK 0             // Black position.
+#define WHITE 1             // White position.
 
-#define LIM 10          // Last permited number.
+#define LIM 10              // Last permited number.
 
-#define WIDTH 6         // Board width.
-#define HEIGHT 6        // Board Height.
+#define WIDTH 6             // Board width.
+#define HEIGHT 6            // Board Height.
 
-#define LAST_I 5        // Last available line index.
-#define LAST_J 5        // Last available collumn index.
+#define LAST_I 5            // Last available line index.
+#define LAST_J 5            // Last available collumn index.
 
-#define FORWARD true    // Going forward in board.
-#define BACKWARD false  // Going backward in board.
+#define FORWARD true        // Going forward in board.
+#define BACKWARD false      // Going backward in board.
 
-#define SOLVABLE 0      // Solvable board.
-#define UNSOLVABLE 1    // Unsolvable board.
+#define SOLVED 0            // Solvable board.
+#define UNSOLVABLE 1        // Unsolvable board.
 
-
+// declarations
 inline static bool check_line(int,int);
 inline static bool check_col(int,int);
 inline static bool line_repeats(int,int,int);
 inline static bool col_repeats(int,int,int);
 
-using namespace std;
-
-
+/*
+ * Black/White position. 
+ */
 struct pos {
     int c;
     int first;
     int second;
 };
 
-pos board[HEIGHT][WIDTH];
+/*
+ * Kakuro board.
+ */
+static pos board[HEIGHT][WIDTH];
 
+/*
+ * Initialize board.
+ */
 static void init_board()
 {
     board[0][0] = {BLACK, 0, 0};
@@ -74,70 +106,126 @@ static void init_board()
     board[5][5] = {WHITE, 0, 0};
 }
 
+/*
+ * Solves a given kakuro board. 
+ */
 int solve(int i, int j, int value, bool forward)
 {   
     /*
-     * Pular posicoes pretas.
+     * Skip black positions (forward).
      */
-    if (board[i][j].c == BLACK && forward) {
-        return solve(((j==LAST_J)? i+1: i), (j+1)%WIDTH, 1, FORWARD);
-    } else if(board[i][j].c == BLACK && !forward) {
+    if (board[i][j].c == BLACK && forward)
+    {
+        /*
+         * Move forward.
+         */
+        return solve(((j == LAST_J)? i+1: i), (j+1) % WIDTH, 1, FORWARD);
+
+    } 
+    
+    /*
+     * Skip black position (backward). 
+     */
+    else if (board[i][j].c == BLACK && !forward)
+     {
+        /*
+         * All possible combinations failed.
+         */
         if (j==0 && i==0)
             return UNSOLVABLE;
-        if (j==0)
+
+        /*
+         * Backtrack (up).
+         */
+        else if (j==0)
             return solve(i-1, LAST_J, board[i-1][LAST_J].first+1, BACKWARD);
+
+        /*
+         * Backtrack (left).
+         */
         else
             return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
     }
 
+    /*
+     * Try new value for position.
+     */
     board[i][j].first = value;
 
     /*
-     * Direita preto.
+     * Right is black.
      */
-    if ((j==LAST_J) || ((j!=LAST_J) && board[i][j+1].c == BLACK)) {
+    if ((j == LAST_J) || ((j != LAST_J) && board[i][j+1].c == BLACK))
+    {
+        /*
+         * Tried all possible numbers for this
+         * position, backtrack (left).
+         */
         if (value == LIM)
             return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
-        if (!check_line(i,j) || line_repeats(i,j,value))
+
+        /*
+         * Try next possible value. 
+         */
+        else if (!check_line(i, j) || line_repeats(i, j, value))
             return solve(i, j, value+1, FORWARD);
     }
 
     /*
-     * Baixo preto.
+     * Down is black.
      */
-    if ((i==LAST_I) || ((i!=LAST_I) && board[i+1][j].c == BLACK)) {
-        if (value == LIM){
-            if(j==0)
+    if ((i == LAST_I) || ((i != LAST_I) && board[i+1][j].c == BLACK))
+    {    
+        /*
+         * Tried all possible
+         * numbers for this position.
+         */
+        if (value == LIM)
+        {
+            /*
+             * Backtrack (up). 
+             */
+            if (j == 0)
                 return solve(i-1, LAST_J, board[i-1][LAST_J].first+1, BACKWARD);
+
+            /*
+             * Backtrack (left). 
+             */
             else
                 return solve(i, j-1, board[i][j-1].first+1, BACKWARD);   
         }
-            
-        if (!check_col(i,j) || col_repeats(i,j,value))
+
+        /*
+         * Try next possible value. 
+         */            
+        if (!check_col(i, j) || col_repeats(i, j, value))
             return solve(i, j, value+1, FORWARD);
     }
     
     /*
-     * Direita branco, baixo branco.
+     * Backtrack after trying all possible numbers.
      */
     if (value == LIM)
-        return solve(i, j-1, board[i][j-1].first+1,BACKWARD);
+        return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
 
     /*
-     * Ultima posicao.
+     * Last position?
      */
-    if (i==LAST_I && j==LAST_J)
-        return SOLVABLE;
+    if (i == LAST_I && j == LAST_J)
+        return SOLVED;
     
     /*
-     * Direita branco, baixo branco.
+     * Right and down are white.
      */
-    return solve(((j==LAST_J)? i+1: i), (j+1)%WIDTH, 1, FORWARD);
+    return solve(((j == LAST_J)? i+1: i), (j+1) % WIDTH, 1, FORWARD);
 }
 
+/*
+ * Check if line sums-up to hint. 
+ */
 static bool inline check_line(int line, int j)
 {
-    int sum = 0;
+    static int sum = 0;
     while (board[line][j].c == WHITE)
     {
         sum += board[line][j].first;
@@ -146,9 +234,12 @@ static bool inline check_line(int line, int j)
     return (sum == board[line][j].second);
 }
 
+/*
+ * Check if collum sums-up to hint. 
+ */
 static bool inline check_col(int i, int col)
 {
-    int sum = 0;
+    static int sum = 0;
     while (board[i][col].c == WHITE)
     {
         sum += board[i][col].first;
@@ -157,6 +248,9 @@ static bool inline check_col(int i, int col)
     return (sum == board[i][col].first);
 }
 
+/*
+ * Check if element repeats in line. 
+ */
 static bool inline line_repeats(int line, int j, int value)
 {
     while (board[line][j].c == WHITE)
@@ -167,6 +261,9 @@ static bool inline line_repeats(int line, int j, int value)
     return false;
 }
 
+/*
+ * Check if element repeats in collumn. 
+ */
 static bool inline col_repeats(int i, int col, int value)
 {
     while (board[i][col].c == WHITE)
@@ -177,7 +274,13 @@ static bool inline col_repeats(int i, int col, int value)
     return false;
 }
 
-void print_solution() {
+/*
+ * Print solution if there is one.
+ */
+static void print_solution()
+{
+    using namespace std;
+
     for (int i = 0; i < 6; i++)
     {
         for (int j = 0; j < 6; j++)
@@ -191,10 +294,16 @@ void print_solution() {
     }
 }
 
+/*
+ * Solves kakuro boards.
+ */
 int main()
 {
+    using namespace std;
+
     init_board();
-    solve(0, 0, 0, FORWARD);
-    print_solution();
-    return 0;
+    if (solve(0, 0, 0, FORWARD) == SOLVED)
+        print_solution();
+    else
+        cout << "Unsolvable board!" << endl;    
 }

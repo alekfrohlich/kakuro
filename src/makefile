@@ -10,7 +10,7 @@ haskell: $(TARGETS)
 	$(HC) $(TARGETS) -o $(APP)
 
 cpp: $(CTARGETS)
-	$(CC) $(CTARGETS) -o $(APP)
+	$(CC) $(CTARGETS) -o $(APP) --debug
 
 
 .PHONY: clean

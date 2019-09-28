@@ -1,3 +1,5 @@
+// test case 91 (6x6).
+
 #include <cstdlib>
 
 #ifndef __KAKURO__

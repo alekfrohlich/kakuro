@@ -37,10 +37,71 @@ inline static bool check_col(int,int);
 inline static bool line_repeats(int,int,int);
 inline static bool col_repeats(int,int,int);
 
+
+//---------------------------------------------------
+
+static bool can_continue(int i, int j, int value)
+{
+    if (line_repeats(i, j, value) || col_repeats(i, j, value))
+        return false;
+
+    if ((((j == LAST_J) || ((j != LAST_J) && board[i][j+1].c == BLACK)) && !check_line(i, j)))
+        return false;
+    
+    if ((((i == LAST_I) || ((i != LAST_I) && board[i+1][j].c == BLACK)) && !check_col(i, j)))
+        return false;
+    
+    return true;
+}
+
+static inline bool has_finished(int i, int j)
+{
+    return (i == LAST_I) && (j == LAST_J);
+}
+
+struct idx {
+    int x;
+    int y;
+};
+
+static idx next_pos(int i, int j)
+{
+    if (i > LAST_I)
+        return {LAST_I, LAST_J};
+                
+    if (board[i][j].c == WHITE)
+        return {i, j};
+        
+    else
+        return next_pos(((j == LAST_J)? i+1: i), (j+1) % WIDTH);
+}
+
+int solve2(int i, int j)
+{
+    for (int w = 1; w < 10; w++)
+    {
+        board[i][j].first = w;
+        if (can_continue(i, j, w))
+        {
+            idx p = next_pos(((j == LAST_J)? i+1: i), (j+1) % WIDTH);
+            
+            if (has_finished(p.x, p.y))
+                return SOLVED;
+
+            if (solve2(p.x, p.y) == SOLVED)
+                return SOLVED;
+        }        
+    }
+
+    return UNSOLVABLE;
+}
+
+//---------------------------------------------------
+
 /*
  * Solves a given kakuro board. 
  */
-int solve(int i, int j, int value, bool forward)
+int solve(char i, char j, char value, bool forward)
 {   
     /*
      * Skip black positions (forward).
@@ -230,9 +291,9 @@ static void print_solution()
 {
     using namespace std;
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < HEIGHT; i++)
     {
-        for (int j = 0; j < 6; j++)
+        for (int j = 0; j < WIDTH; j++)
         {
             if (board[i][j].c == WHITE)
                 cout << board[i][j].first;
@@ -251,7 +312,8 @@ int main()
     using namespace std;
 
     init_board();
-    if (solve(0, 0, 0, FORWARD) == SOLVED)
+    idx init_p = next_pos(0,0);
+    if (solve2(init_p.x, init_p.y) == SOLVED)
         print_solution();
     else
         cout << "Unsolvable board!" << endl;    

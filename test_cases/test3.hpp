@@ -1,3 +1,5 @@
+// test case 94 (6x6).
+
 #include <cstdlib>
 
 #ifndef __KAKURO__
@@ -36,7 +38,7 @@ void init_board(void)
     board[1][4] = {WHITE, 0, 0};
     board[1][5] = {WHITE, 0, 0};
     board[2][0] = {BLACK, 0, 0};
-    board[2][1] = {BLACK, 10, 14};    
+    board[2][1] = {BLACK, 10, 14};
     board[2][2] = {WHITE, 0, 0};
     board[2][3] = {WHITE, 0, 0};
     board[2][4] = {WHITE, 0, 0};

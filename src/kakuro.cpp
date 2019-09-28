@@ -40,6 +40,11 @@ inline static bool col_repeats(int,int,int);
 
 //---------------------------------------------------
 
+struct idx {
+    int x;
+    int y;
+};
+
 static bool can_continue(int i, int j, int value)
 {
     if (line_repeats(i, j, value) || col_repeats(i, j, value))
@@ -58,11 +63,6 @@ static inline bool has_finished(int i, int j)
 {
     return (i == LAST_I) && (j == LAST_J);
 }
-
-struct idx {
-    int x;
-    int y;
-};
 
 static idx next_pos(int i, int j)
 {

@@ -8,8 +8,8 @@
 #endif  // namespace kakuro.
 
 // declarations
+const int HEIGHT = 9;            // Board height.
 const int WIDTH  = 9;            // Board width.
-const int HEIGHT = 9;            // Board const int 
 
 const int LAST_I = 8;            // Last available line index.
 const int LAST_J = 8;            // Last available collumn index.

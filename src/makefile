@@ -13,13 +13,13 @@ CDEPS = kakuro.hpp test.hpp
 
 cpp: $(CTARGETS) $(CDEPS)
 	$(CC) $(CTARGETS) $(CDEPS) -o $(APP) --debug
-	rm test.hpp
+	@rm test.hpp
 
 haskell: $(TARGETS)
 	$(HC) $(TARGETS) -o $(APP)
 
 test.hpp:
-	cp ../test_cases/$(TEST) test.hpp
+	@cp ../test_cases/test$(TEST).hpp test.hpp
 
 clean:
 	@rm -f *.o *.hi $(APP)

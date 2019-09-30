@@ -76,7 +76,10 @@ static idx next_pos(int i, int j)
         return next_pos(((j == LAST_J)? i+1: i), (j+1) % WIDTH);
 }
 
-int solve2(int i, int j)
+/*
+ * Solves a given kakuro board. 
+ */
+int solve(int i, int j)
 {
     for (int w = 1; w < 10; w++)
     {
@@ -85,135 +88,15 @@ int solve2(int i, int j)
         {
             idx p = next_pos(((j == LAST_J)? i+1: i), (j+1) % WIDTH);
             
-            if (has_finished(p.x, p.y))
+            if (has_finished(p.x, p.y) && (j == LAST_J || board[LAST_I][LAST_J].c == BLACK))
                 return SOLVED;
 
-            if (solve2(p.x, p.y) == SOLVED)
+            if (solve(p.x, p.y) == SOLVED)
                 return SOLVED;
         }        
     }
 
     return UNSOLVABLE;
-}
-
-//---------------------------------------------------
-
-/*
- * Solves a given kakuro board. 
- */
-int solve(char i, char j, char value, bool forward)
-{   
-    /*
-     * Skip black positions (forward).
-     */
-    if (board[i][j].c == BLACK && forward)
-    {
-        /*
-         * Last position is black. 
-         */
-        if (i == LAST_I && j == LAST_J)
-            return SOLVED;
-
-        /*
-         * Move forward.
-         */
-        return solve(((j == LAST_J)? i+1: i), (j+1) % WIDTH, 1, FORWARD);
-    } 
-    
-    /*
-     * Skip black position (backward). 
-     */
-    else if (board[i][j].c == BLACK && !forward)
-     {
-        /*
-         * All possible combinations failed.
-         */
-        if (j == 0 && i == 0)
-            return UNSOLVABLE;
-
-        /*
-         * Backtrack (up).
-         */
-        else if (j == 0)
-            return solve(i-1, LAST_J, board[i-1][LAST_J].first+1, BACKWARD);
-
-        /*
-         * Backtrack (left).
-         */
-        else
-            return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
-    }
-
-    /*
-     * Try new value for position.
-     */
-    board[i][j].first = value;
-
-    /*
-     * Right is black or last element of row.
-     */
-    if ((j == LAST_J) || ((j != LAST_J) && board[i][j+1].c == BLACK))
-    {
-        /*
-         * Tried all possible numbers for this
-         * position, backtrack (left).
-         */
-        if (value == LIM)
-            return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
-
-        /*
-         * Try next possible value. 
-         */
-        else if (!check_line(i, j) || line_repeats(i, j, value))
-            return solve(i, j, value+1, FORWARD);
-    }
-
-    /*
-     * Down is black or last element of collumn.
-     */
-    if ((i == LAST_I) || ((i != LAST_I) && board[i+1][j].c == BLACK))
-    {    
-        /*
-         * Tried all possible numbers for this
-         * position, backtrack (left).
-         */
-        if (value == LIM)
-            return solve(i, j-1, board[i][j-1].first+1, BACKWARD);   
-
-        /*
-         * Try next possible value. 
-         */            
-        if (!check_col(i, j) || col_repeats(i, j, value))
-            return solve(i, j, value+1, FORWARD);
-    }
-    
-    /*
-     * Backtrack after trying all possible numbers.
-     */
-    if (value == LIM)
-        return solve(i, j-1, board[i][j-1].first+1, BACKWARD);
-
-    /*
-     * Last position?
-     */
-    if (i == LAST_I && j == LAST_J)
-        return SOLVED;
-    
-    /*
-     * Right and down are white.
-     */
-    if (line_repeats(i, j, value) || col_repeats(i, j, value))
-        /*
-         * White middle-man repeats
-         * some value, try again
-         * with next possible value. 
-         */
-        return solve(i, j, value+1, FORWARD);
-    else
-        /*
-         * Move forward. 
-         */
-        return solve(((j == LAST_J)? i+1: i), (j+1) % WIDTH, 1, FORWARD);
 }
 
 /*
@@ -313,7 +196,7 @@ int main()
 
     init_board();
     idx init_p = next_pos(0,0);
-    if (solve2(init_p.x, init_p.y) == SOLVED)
+    if (solve(init_p.x, init_p.y) == SOLVED)
         print_solution();
     else
         cout << "Unsolvable board!" << endl;    

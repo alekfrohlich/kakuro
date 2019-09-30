@@ -29,9 +29,6 @@ const int WHITE = 1;             // White position.
 
 const int LIM = 10;              // Last permited number.
 
-const int FORWARD = true;        // Going forward in board.
-const int BACKWARD = false;      // Going backward in board.
-
 const int SOLVED = 0;            // Solvable board.
 const int UNSOLVABLE = 1;        // Unsolvable board.
 

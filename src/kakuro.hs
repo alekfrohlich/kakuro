@@ -1,6 +1,22 @@
 module Main where
 
--- Defines
+import Data.Array.MArray
+import Data.Array.IO
+
+-- 10x12 Puzzle (#2)
+kakuroBoard = [[(0,0,0),   (0,14,0),  (0,29,0),  (0,10,0),  (0,0,0),   (0,0,0),   (0,0,0),   (0,24,0),  (0,16,0),  (0,22,0),  (0,0,0),   (0,0,0)  ]
+              ,[(0,0,23),  (1,0,0),   (1,0,0),   (1,0,0),   (0,3,0),   (0,0,0),   (0,12,24), (1,0,0),   (1,0,0),   (1,0,0),   (0,24,0),  (0,0,0)  ]
+              ,[(0,0,11),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,6,34),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,17,0) ]
+              ,[(0,0,13),  (1,0,0),   (1,0,0),   (0,39,16), (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,9,19),  (1,0,0),   (1,0,0),   (1,0,0)  ]
+              ,[(0,0,0),   (0,0,16),  (1,0,0),   (1,0,0),   (0,4,3),   (1,0,0),   (1,0,0),   (0,7,29),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0)  ]
+              ,[(0,0,0),   (0,4,0),   (0,7,8),   (1,0,0),   (1,0,0),   (1,0,0),   (0,10,7),  (1,0,0),   (1,0,0),   (1,0,0),   (0,10,0),  (0,0,0)  ]
+              ,[(0,0,10),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,6,4),   (1,0,0),   (1,0,0),   (0,4,3),   (1,0,0),   (1,0,0),   (0,15,0) ]
+              ,[(0,0,11),  (1,0,0),   (1,0,0),   (1,0,0),   (0,4,11) , (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,4,11),  (1,0,0),   (1,0,0)  ]
+              ,[(0,0,0),   (0,0,16),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0),   (0,0,11),  (1,0,0),   (1,0,0),   (1,0,0),   (1,0,0)  ]
+              ,[(0,0,0),   (0,0,0),   (0,0,13),  (1,0,0),   (1,0,0),   (1,0,0),   (0,0,0),   (0,0,0),   (0,0,7),   (1,0,0),   (1,0,0),   (1,0,0)  ]]
+
+{-- START OF DEFINES --}
+
 --           (Color, First, Second).
 type Pos   = (Int, Int, Int)
 --           (Row, Collumn).
@@ -14,33 +30,20 @@ continue = 2        -- Continue for
 black = 0           -- Black position.
 white = 1           -- White position.
 
-last_i = 5          -- Last available line index.
-last_j = 5          -- Last available collumn index.
+height = 10         -- Board height.
+width  = 12         -- Board width.  
 
-height = 6          -- Board height.
-width  = 6          -- Board width.          
+last_i = height-1   -- Last available line index.
+last_j = width-1    -- Last available collumn index.        
 
 limit = 10          -- Last permited number.
+
+{-- END OF DEFINES --}
 
 {-- START OF BOARD INTERFACE --}
 
 -- IOArray Wrapper Interface
 (!) = readArray
-(!*) = writeArray
-
--- Print Solved Board.
-printBoard board (i,j) = sequence_ $ do
-    i <- [1..height]
-    j <- [1..width]
-    return $ do
-      (color, first, second) <- readBoard board (i,j)
-
-      putStr $ if color == 0
-                then '*'
-                else (show first)
-      if j == width
-        then putChar '\n'
-        else return () 
 
 {-- END OF BOARD INTERFACE --}
 
@@ -50,95 +53,103 @@ printBoard board (i,j) = sequence_ $ do
 nextPos :: Index -> Index
 nextPos (i,j)
         | (j == last_j) = ((i+1), (mod  (j+1) width))
-        | otherwise = (i, (mod  (j+1) width)
-        
-checkColAux :: Index -> Int -> Board -> Int
-checkColAux (i,j) w sum
-        | (readAndTestIsWhite (i,j)) = (checkColAux ((i-1), j) w (sum + ((readBoard(i,j)) !! 1)))
-        | otherwise = (sum == ((readBoard(i,j)) !! 1))
-
-checkLineAux :: Index -> Int -> Board -> Int
-checkLineAux (i,j) w sum
-        | (readAndTestIsWhite (i,j)) = (checkLineAux (i, (j-1)) w (sum + ((readBoard(i,j)) !! 1)))
-        | otherwise = (sum == ((readBoard(i,j)) !! 1))
-
-readAndTestIsWhite :: Index -> Bool
-readAndTestIsWhite (i,j) = isWhite (readBoard (i,j))
+        | otherwise = (i, (mod  (j+1) width))
 
 {-- END OF AUXILIARES --}
 
 {-- START OF KAKURO --}
 
-checkCol :: Index -> Int -> Board -> Bool
-checkCol (i,j) w = (checkColAux (i,j) w 0)
+checkCol (i,j) board sum = do
+    (color, value, _) <- board ! (i,j)
+    if color == white
+        then (checkCol ((i-1), j) board (sum + value))
+        else return (sum == value)
 
-checkLine :: Index -> Int -> Board -> Bool
-checkLine (i,j) w = (checkLineAux (i,j) w 0)
+checkLine (i,j) board sum = do
+    (color, value, _) <- board ! (i,j)
+    if color == white
+        then (checkLine (i, (j-1)) board (sum + value))
+        else return (sum == value)
 
-lineRepeats :: Index -> Int -> Board -> Bool
-lineRepeats (i,j) w
-        | (not (readAndTestIsWhite (i,j))) = False
-        | ((readBoard (i,j)) !! 1) == w = True
-        | otherwise = (lineRepeats (i, (j-1)))
+lineRepeats (i,j) board w = do
+    (color, value, _) <- board ! (i,j)
+    if color == black
+        then return False
+        else if value == w
+            then return True
+            else (lineRepeats (i, (j-1)) board w)
 
-colRepeats :: Index -> Int -> Board -> Bool
-colRepeats (i,j) w
-        | (not (readAndTestIsWhite (i,j))) = False
-        | ((readBoard (i,j)) !! 1) == w = True
-        | otherwise = (colRepeats ((i-1), j))
+colRepeats (i,j) board w = do
+    (color, value, _) <- board ! (i,j)
+    if color == black
+        then return False
+        else if value == w
+            then return True
+            else (colRepeats ((i-1), j) board w)
 
--- 
-canContinue :: Int -> Int -> Int -> Bool
-canContinue i j value
-        | (lineRepeats i j value) = False
-        | (colRepeats i j value)  = False
-        | (j == last_j && (not check)) = False
-        | ((board ! (i,(j+1))) !! 0 ) == Black && (not check) 
-        | 
-        | otherwise = True
-        where check = ()
+canContinue (i,j) board w = do
+    lReps <- (lineRepeats (i,j) board w)
+    cReps <- (colRepeats (i,j) board w)
+    if (lReps || cReps)
+        then return False
+        else do 
+            checkL <- (checkLine (i,j) board 0)
+            checkC <- (checkCol (i,j) board 0)
+            if ((j == last_j) && (not checkL)) || ((i == last_i) && (not checkC))
+                then return False
+                else do
+                    (colorRight, _, _) <- (board ! (i, (j+1)))
+                    (colorDown, _, _) <- (board ! (i+1, j))
+                    if ((colorRight == black) && (not checkL)) || ((colorDown == black) && (not checkC))
+                        then return False
+                        else return True
 
--- Checks if index is last of board.
-isLastPos :: Index -> Bool
-isLastPos (i, j) = (i == last_i) && (j == last_j)
+-- --
+-- hasFinished :: Index -> Int -> Board -> Int
+-- hasFinished (i,j) w board
+--         | (isLastPos nextP) && (j == last_j || ((getColor (last_i,last_j)!!0)==black)) = solved
+--         | (solve nextP) == solved = solved
+--         | otherwise = continue
+--         where nextP = (nextWhitePos (nextPos (i,j)))
 
---
-hasFinished :: Index -> Int -> Board -> Int
-hasFinished (i,j) w
-        | (isLastPos nextP) && (j == last_j || lastIsBlack)) = solved
-        | (solve nextP) == solved = solved
-        | otherwise = continue
-        where nextP = (nextWhitePos (nextPos (i,j))
-
--- Works out the tests to ...
-work :: Index -> Int -> Board -> Int
-work (i,j) w = do
-        board !* (i,j) w
-        if (canContinue (i,j) w ) then 
-                (hasFinished (i,j) w)
-        else 
-                continue
+-- -- Works out the tests to ...
+-- work :: Index -> Int -> Board -> Int
+-- work (i,j) w board = do
+--     writeArray board (i,j) w
+--     return (if (canContinue (i,j) w board) then 
+--         (hasFinished (i,j) w board)
+--     else continue)
                 
--- Try one iteration of work.
-try :: Index -> Int -> Board -> Int
-try (i,j) w board
-        | (w == limit) = unsolvable
-        | ((work (i,j) w board) == solved) = solved
-        | otherwise = try (i,j) (w+1) board
+-- -- Try one iteration of work.
+-- try :: Index -> Int -> Board -> Int
+-- try (i,j) w board
+--         | (w == limit) = unsolvable
+--         | ((work (i,j) w board) == solved) = solved
+--         | otherwise = (try (i,j) (w+1) board)
                         
--- Solves Kakuro boards!
-solve :: Index -> Board -> Int
-solve (i,j) board = (try (i,j) 1 board)
+-- -- Solves Kakuro boards!
+-- solve :: Index -> Board -> Int
+-- solve (i,j) board = (try (i,j) 1 board)
 
 -- Here is where it all starts :-)
 main = do
-    -- 1. Declare the array
-    arr <- newArray ((1,1), (height, width)) undefined   
-    let _ = arr :: IOArray (Int,Int) Integer
+    -- 1. Declare the matrix
+    board <- newArray ((0,0), (height,width)) undefined
+    let _ = board :: Board
 
--- QUEBRADO
-nextWhitePos :: Index -> Board -> Index
-nextWhitePos (i,j)
-        | (i > last_i) = (last_i, last_j)
-        | (readAndTestIsWhite (i,j)) = (i,j)
-        | otherwise = (nextPos (i,j)))
+    -- 2. Initialize the matrix.
+    sequence_ $ do
+        i <- [0..last_i]
+        j <- [0..last_j]
+        return $ writeArray board (nextPos(i, (j-1))) ((kakuroBoard !! i) !! j)
+    sequence_ $ do
+            i <- [0..last_i]
+            j <- [0..last_j]
+            return $ do
+            (color, first, second) <- board ! (i,j)
+            putStr $ if color == 0
+                    then "*"
+                    else (show first)
+            if j == last_j
+                    then putChar '\n'
+                    else return ()             

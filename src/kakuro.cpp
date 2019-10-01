@@ -50,11 +50,11 @@ static bool can_continue(int i, int j, int value)
     if (line_repeats(i, j, value) || col_repeats(i, j, value))
         return false;
 
-    if ((((i == LAST_I) || ((i != LAST_I) && board[i+1][j].c == BLACK)) && !check_col(i, j)))
-        return false;
-
     if ((((j == LAST_J) || ((j != LAST_J) && board[i][j+1].c == BLACK)) && !check_line(i, j)))
         return false;    
+
+    if ((((i == LAST_I) || ((i != LAST_I) && board[i+1][j].c == BLACK)) && !check_col(i, j)))
+        return false;
     
     return true;
 }

@@ -30,25 +30,7 @@ module Main where
 import Data.Array.MArray
 import Data.Array.IO
 
-
--- -- 10x12 Puzzle (#2)
-kakuroBoard = [[(0,0,0), (0,14,0), (0,29,0), (0,10,0), (0,0,0), (0,0,0), (0,0,0), (0,24,0), (0,16,0), (0,22,0), (0,0,0), (0,0,0)]
-                ,[(0,0,23), (1,0,0), (1,0,0), (1,0,0), (0,3,0), (0,0,0), (0,12,24), (1,0,0), (1,0,0), (1,0,0), (0,24,0), (0,0,0)]
-                ,[(0,0,11), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,6,34), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,17,0)]
-                ,[(0,0,13), (1,0,0), (1,0,0), (0,39,16), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,9,19), (1,0,0), (1,0,0), (1,0,0)]
-                ,[(0,0,0), (0,0,16), (1,0,0), (1,0,0), (0,4,3), (1,0,0), (1,0,0), (0,7,29), (1,0,0), (1,0,0), (1,0,0), (1,0,0)]
-                ,[(0,0,0), (0,4,0), (0,7,8), (1,0,0), (1,0,0), (1,0,0), (0,10,7), (1,0,0), (1,0,0), (1,0,0), (0,10,0), (0,0,0)]
-                ,[(0,0,10), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,6,4), (1,0,0), (1,0,0), (0,4,3), (1,0,0), (1,0,0), (0,15,0)]
-                ,[(0,0,11), (1,0,0), (1,0,0), (1,0,0), (0,4,11), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,4,11), (1,0,0), (1,0,0)]
-                ,[(0,0,0), (0,0,16), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (0,0,11), (1,0,0), (1,0,0), (1,0,0), (1,0,0)]
-                ,[(0,0,0), (0,0,0), (0,0,13), (1,0,0), (1,0,0), (1,0,0), (0,0,0), (0,0,0), (0,0,7), (1,0,0), (1,0,0), (1,0,0)]]
-
--- kakuroBoard = [[(0,0,0), (0,12,0), (0,21,0), (0,0,0), (0,16,0), (0,13,0)]
---               ,[(0,0,17), (1,0,0), (1,0,0), (0,22,11), (1,0,0), (1,0,0)]
---               ,[(0,0,15), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (1,0,0)]
---               ,[(0,0,0), (0,4,13), (1,0,0), (1,0,0), (1,0,0), (0,10,0)]
---               ,[(0,0,18), (1,0,0), (1,0,0), (1,0,0), (1,0,0), (1,0,0)]
---               ,[(0,0,10), (1,0,0), (1,0,0), (0,0,14), (1,0,0), (1,0,0)]]
+import TestCases (height, width, kakuroBoard)
 
 {-- START OF DEFINES --}
 
@@ -65,25 +47,53 @@ continue = 2        -- Continue for
 black = 0           -- Black position.
 white = 1           -- White position.
 
-height = 10         -- Board height.
-width  = 12         -- Board width.  
-
 last_i = height-1   -- Last available line index.
 last_j = width-1    -- Last available collumn index.        
 
 limit = 10          -- Last permited number.
 
-(!) = readArray
+{-
+ External defines:
+    * height.       -- Board height.
+    * width.        -- Board width.
+    * kakuroBoard.  -- Kakuro board.
+ -}
 
 {-- END OF DEFINES --}
 
 {-- START OF AUXILIARES --}
+
+-- Alias for acessing kakuroBoard.
+(!) = readArray
 
 -- Return next Position on board.
 nextPos :: Index -> Index
 nextPos (i,j)
         | (j == last_j) = ((i+1), (mod  (j+1) width))
         | otherwise = (i, (mod  (j+1) width))
+
+-- Compare monadic values.
+cmpM m1 m2 = do
+    a <- m1
+    b <- m2
+    if a == b then (return True) else (return False)
+
+-- Monadic if.
+ifM act t e = do
+    b <- act
+    if b then t else e
+
+-- Monadic or.
+(||^) a b = ifM a (return True) b
+
+-- Monadic and.
+(&&^) a b = ifM a b (return False)
+
+-- Monadic compare.
+(==^) m1 m2 = cmpM m1 m2
+
+-- Alias for return (used in boolean expressions to avoid cluttering).
+l m = return m
 
 {-- END OF AUXILIARES --}
 
@@ -121,9 +131,10 @@ colRepeats (i,j) board w = do
             then return True
             else (colRepeats ((i-1), j) board w)
 
-segundoIfCan (i,j) board = do
+-- Test second if. 
+horizContTest (i,j) board = do
     checkL <- (checkLine (i,j) board 0)
-    if (j==last_j) && (not checkL)
+    if (j == last_j) && (not checkL)
         then return True
         else do
             if (j /= last_j)
@@ -134,10 +145,11 @@ segundoIfCan (i,j) board = do
                             return True
                         else
                             return False
-                    else do
-                    return False
+                    else
+                        return False
 
-terceiroIfCan (i,j) board = do
+-- Test third if.
+vertContTest (i,j) board = do
     checkC <- (checkCol (i,j) board 0)
     if (i == last_i) && (not checkC)
         then return True
@@ -155,22 +167,18 @@ terceiroIfCan (i,j) board = do
 
 -- Check if branch of computation can procede.
 canContinue (i,j) board w = do
-    lReps <- (lineRepeats (i,(j-1)) board w)
-    cReps <- (colRepeats ((i-1),j) board w)
-    if (lReps || cReps)
-        then return False
-        else do 
-            seg <- (segundoIfCan (i,j) board)
-            ter <- (terceiroIfCan (i,j) board)
-            if (seg || ter)
-                then return False
-                else return True
+    ifM ((lineRepeats (i,(j-1)) board w) ||^ (colRepeats ((i-1),j) board w))
+        (return False)
+        (do 
+            ifM ((horizContTest (i,j) board) ||^ (vertContTest (i,j) board))
+                (return False)
+                (return True))
 
 {-
-Returns next white position on board,
-if there isn't none, returns last position
-instead.
--}
+ Returns next white position on board,
+ if there isn't none, returns last position
+ instead.
+ -}
 nextWhitePos (i,j) board = do
     if (i > last_i)
         then do
@@ -185,35 +193,32 @@ nextWhitePos (i,j) board = do
 isLastPos :: Index -> Bool
 isLastPos (i, j) = (i == last_i) && (j == last_j)
 
+-- Test finish conditions. Calls next position to try.
 hasFinished (i,j) board = do
     nextP <- (nextWhitePos (nextPos (i,j)) board)
     (color,_,_) <- board ! (last_i,last_j)
     if (isLastPos nextP) && (j == last_j || color == black)
         then return solved
         else do
-            sol <- (solve nextP board) 
-            if sol == solved
-                then do
-                    return solved
-                else return continue
+            ifM ((solve nextP board) ==^ (l solved))
+                (return solved)
+                (return continue)
 
--- Works out the tests to ...
+-- Skip impossible board states, also propagate finished state.
 work (i,j) board w = do
     (writeArray board (i,j) (white, w, 0))
-    can <- (canContinue (i,j) board w)
-    if (can)
-        then (hasFinished (i,j) board)
-        else return continue
-        
+    ifM (canContinue (i,j) board w)
+        (hasFinished (i,j) board)
+        (return continue)
+
 -- Try one iteration of work.
 try (i,j) board w = do
     if (w == limit)
-            then return unsolvable
-            else do 
-            wor <- (work (i,j) board w) 
-            if (wor == solved)
-                    then return solved
-                    else (try (i,j) board (w+1))
+        then return unsolvable
+        else do
+            ifM ((work (i,j) board w) ==^ (l solved))
+                (return solved)
+                ((try (i,j) board (w+1)))
 
 -- Solves Kakuro boards!
 solve (i,j) board = do
@@ -221,25 +226,32 @@ solve (i,j) board = do
 
 -- Here is where it all starts :-)
 main = do
-    -- 1. Declare the matrix
+    -- 1. Declare the board
     board <- newArray ((0,0), (height,width)) undefined
     let _ = board :: Board
 
-    -- 2. Initialize the matrix.
+    -- 2. Initialize the board.
     sequence_ $ do
             i <- [0..last_i]
             j <- [0..last_j]
             return $ writeArray board (i,j) ((kakuroBoard !! i) !! j)
+
+    -- 3. Solve the puzzle.
     nex <- (nextWhitePos (0,0) board)
     sol <- (solve nex board)
-    sequence_ $ do
-            i <- [0..last_i]
-            j <- [0..last_j]
-            return $ do
-            (color, first, second) <- board ! (i,j)
-            putStr $ if color == black
-                    then "*"
-                    else (show first)
-            if j == last_j
-                    then putChar '\n'
-                    else return ()             
+
+    -- 4. Print solution.
+    if (sol == solved)
+        then sequence_ $ do
+                i <- [0..last_i]
+                j <- [0..last_j]
+                return $ do
+                (color, first, second) <- board ! (i,j)
+                putStr $ if color == black
+                        then "*"
+                        else (show first)
+                if j == last_j
+                        then putChar '\n'
+                        else return ()
+        else
+            print ("Unsolvable!")

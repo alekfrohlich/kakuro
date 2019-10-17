@@ -1,14 +1,26 @@
 ;; BEGIN DEFINES
 
 ;; Kakuro board
-(define board 
-    (vector 
-        (vector 0 0 0)  (vector 0 12 0) (vector 0 21 0) (vector 0 0 0)   (vector 0 16 0) (vector 0 13 0)
-        (vector 0 0 17) (vector 1 0 0)  (vector 1 0 0)  (vector 0 22 11) (vector 1 0 0)  (vector 1 0 0)
-        (vector 0 0 15) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
-        (vector 0 0 0)  (vector 0 4 13) (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 0 10 0)
-        (vector 0 0 18) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
-        (vector 0 0 10) (vector 1 0 0)  (vector 1 0 0)  (vector 0 0 14)  (vector 1 0 0)  (vector 1 0 0)))
+; (define board 
+;     (vector 
+;         (vector 0 0 0)  (vector 0 12 0) (vector 0 21 0) (vector 0 0 0)   (vector 0 16 0) (vector 0 13 0)
+;         (vector 0 0 17) (vector 1 0 0)  (vector 1 0 0)  (vector 0 22 11) (vector 1 0 0)  (vector 1 0 0)
+;         (vector 0 0 15) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
+;         (vector 0 0 0)  (vector 0 4 13) (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 0 10 0)
+;         (vector 0 0 18) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
+;         (vector 0 0 10) (vector 1 0 0)  (vector 1 0 0)  (vector 0 0 14)  (vector 1 0 0)  (vector 1 0 0)))
+(define board
+    (vector (vector 0 0 0) (vector 0 14 0) (vector 0 29 0) (vector 0 10 0) (vector 0 0 0) (vector 0 0 0) (vector 0 0 0) (vector 0 24 0) (vector 0 16 0) (vector 0 22 0) (vector 0 0 0) (vector 0 0 0) 
+    (vector 0 0 23) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 3 0) (vector 0 0 0) (vector 0 12 24) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 24 0) (vector 0 0 0) 
+    (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 6 34) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 17 0) 
+    (vector 0 0 13) (vector 1 0 0) (vector 1 0 0) (vector 0 39 16) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 9 19) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
+    (vector 0 0 0) (vector 0 0 16) (vector 1 0 0) (vector 1 0 0) (vector 0 4 3) (vector 1 0 0) (vector 1 0 0) (vector 0 7 29) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
+    (vector 0 0 0) (vector 0 4 0) (vector 0 7 8) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 10 7) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 10 0) (vector 0 0 0) 
+    (vector 0 0 10) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 6 4) (vector 1 0 0) (vector 1 0 0) (vector 0 4 3) (vector 1 0 0) (vector 1 0 0) (vector 0 15 0) 
+    (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 4 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 4 11) (vector 1 0 0) (vector 1 0 0) 
+    (vector 0 0 0) (vector 0 0 16) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
+    (vector 0 0 0) (vector 0 0 0) (vector 0 0 13) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 0 0) (vector 0 0 0) (vector 0 0 7) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) )
+)
 
 (define solved 0)               ;; Solved board.
 (define unsolvable 1)           ;; Unsolvable board.
@@ -19,8 +31,8 @@
 
 (define limit 10)
 
-(define height 6)               ;; Height of board.
-(define width 6)                ;; Width of board.
+(define height 10)               ;; Height of board.
+(define width 12)                ;; Width of board.
 
 (define last_i (- height 1))    ;; Last possible index on collumn.
 (define last_j (- width 1))     ;; Last possible index on line.
@@ -107,27 +119,27 @@
 (define (checkCol pos sum)
     (if (white? pos)
         (checkCol (up pos) (+ sum (first pos)))
-        (= sum (second pos))))
+        (= sum (first pos))))
 
 ;; Check if element repeats on given line.
 (define (lineRepeats? pos w)
-    (cond ((black? pos) (begin (display "1\n") #f))
-          ((= (first pos) w) (begin (display "2\n") #t))
-          (else (begin (display "3\n") (lineRepeats? (left pos) w)))))
+    (cond ((black? pos)  #f)
+          ((= (first pos) w) #t)
+          (else (lineRepeats? (left pos) w))))
 
 ;; Check if element repeats on given collumn.
 (define (colRepeats? pos w)
-    (cond ((black? pos) (begin (display "4\n") #f))
-          ((= (first pos) w) (begin (display "5\n") #t))
-          (else (begin (display "6\n") (colRepeats? (up pos) w)))))
+    (cond ((black? pos) #f)
+          ((= (first pos) w) #t)
+          (else (colRepeats? (up pos) w))))
 
 ;; Check if compute branch can continue.
 (define (continue? pos w)
-    (cond ((lineRepeats? (left pos) w) (begin (display "line") #f)) 
-          ((colRepeats? (up pos) w) (begin (display "col") #f))
-          ((and (or (last_j? pos) (and (not (last_j? pos)) (black? (right pos)))) (not (checkLine pos w))) (begin (display "jjjj") #f))
-          ((and (or (last_i? pos) (and (not (last_i? pos)) (black? (down pos)))) (not (checkCol pos w))) (begin (display "iiii") #f))
-          (else (begin (display "PIROCA") #t))))
+    (cond ((lineRepeats? (left pos) w) #f) 
+          ((colRepeats? (up pos) w) #f)
+          ((and (or (last_j? pos) (and (not (last_j? pos)) (black? (right pos)))) (not (checkLine pos 0))) #f)
+          ((and (or (last_i? pos) (and (not (last_i? pos)) (black? (down pos)))) (not (checkCol pos 0))) #f)
+          (else #t)))
 
 ;; Returns next white position on board.
 ;; If there isn't one left, returns last_pos
@@ -142,7 +154,7 @@
 ;; Test finish conditions. Calls next position to try.
 (define (finished? pos)
     (define nextP (nextWhitePos (nextPos pos)))
-    (if (and (lastPos? nextP) (or (last_i? pos) (black? pos)))
+    (if (and (lastPos? nextP) (or (last_j? pos) (black? last_pos)))
         solved
         (if (solved? (solve nextP))
             solved
@@ -175,7 +187,7 @@
             (display "*")
             (display (first pos))))
     (define (iter pos)
-            (if (= (car pos) 6)
+            (if (= (car pos) height)
                 (newline)
                 (begin
                     (print-pos pos)
@@ -192,6 +204,5 @@
 
 ;; Solve the board
 (if (solved? (solve nex))
-    (display board)
-    ; (display "Unsolvable!"))
-    (display-board))
+    (display-board)
+    (display "Unsolvable!"))

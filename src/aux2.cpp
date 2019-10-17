@@ -6,11 +6,11 @@
 #endif  // namespace kakuro.
 
 // declarations
-const int WIDTH  = 9;            // Board width.
-const int HEIGHT = 9;            // Board const int 
+const int WIDTH  = 12;            // Board width.
+const int HEIGHT = 10;            // Board const int 
 
-const int LAST_J = 8;            // Last available collumn index.
-const int LAST_I = 8;            // Last available line index.
+const int LAST_J = 11;            // Last available collumn index.
+const int LAST_I = 9;            // Last available line index.
 
 pos board[HEIGHT][WIDTH];
 
@@ -71,6 +71,8 @@ int main(){
                 printf("ERRO %d %d\n", i, j);
             }
         }
+        if(i!=HEIGHT-1)
+            printf("\n");
         // printf("]")
         // if(i!=HEIGHT-1)
         //     printf("\n,");

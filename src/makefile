@@ -29,9 +29,9 @@ CC  = g++
 HC  = ghc
 SCM = guile -s
 
-CPPDEPS = $(wildcard *.hpp)
-HSDEPS  = $(wildcard *.hs)
-SCMDEPS = $(wildcard *.scm)
+CPPDEPS = $(APP).hpp test.hpp
+HSDEPS  = $(APP).hs test.hs
+SCMDEPS = $(APP).scm test.scm
 
 ZINHO = $(TESTDIR)/zinho
 
@@ -49,16 +49,16 @@ scheme: $(SCMDEPS)
 
 # Build test dependencies.
 test.cpp:
-	$(ZINHO) $(BOARDDIR)/$(TEST)
-	mv $(TESTDIR) test.cpp
+	$(ZINHO) 1 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test
+	mv $(TESTDIR)/test test.cpp
 
 test.hs:
-	$(ZINHO) $(BOARDDIR)/$(TEST)
-	mv $(TESTDIR) test.cpp
+	$(ZINHO) 2 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test
+	mv $(TESTDIR)/test test.hs
 
 test.scm:
-	$(ZINHO) $(BOARDDIR)/$(TEST)
-	mv $(TESTDIR) test.cpp
+	$(ZINHO) 3 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test
+	mv $(TESTDIR)/test test.scm
 
 clean:
 	@rm -f $(APP)

@@ -39,6 +39,15 @@ FILE *out;
 
 void outw();
 void outb(int,int);
+void outline();
+
+enum languages {
+    CPP = 1,
+    HASKELL,
+    SCHEME,
+};
+
+enum languages target;
 %}
 
 white  [ \t]+
@@ -54,41 +63,128 @@ number [0-9]+
 <BLACK>"/"          { }
 <BLACK>{number}     { right = atoi(yytext); outb(left, right); BEGIN INITIAL; col++; }
 
-"\n"                { line++; col = 0; }
+"$"                 { yyterminate(); }
+"\n"                { line++; col = 0; outline(); }
 "."                 { }
 
 %%
 
 void header()
 {
-    fprintf(out, "(define board (vector ");
+    switch(target)
+    {
+        case CPP:
+            break;
+
+        case HASKELL:
+            fprintf(out, "module TestCases (height, width, kakuroBoard) where\n");
+            fprintf(out, "kakuroBoard :: [[(Int, Int, Int)]]\n");
+            fprintf(out, "kakuroBoard = [[");
+            break;
+
+        case SCHEME:
+           fprintf(out, "(define board (vector ");
+            break;
+        
+        default:
+            printf("Language %u not supported!", target);
+    }    
 }
 
 void footer()
 {
-    fprintf(out, "))\n");
+    switch(target)
+    {
+        case HASKELL:
+            fprintf(out, "]]\n");
+            break;
+
+        case SCHEME:
+            fprintf(out, "))\n");
+            break;
+        
+        default:
+            printf("Language %u not supported!", target);
+    }      
 }
 
 void outw()
 {
-    fprintf(out, "(vector 1 0 0) ");
+    switch(target)
+    {
+        case HASKELL:
+            fprintf(out, "(1,0,0),");
+            break;
+
+        case SCHEME:
+            fprintf(out, "(vector 1 0 0) ");
+            break;
+        
+        default:
+            printf("Language %u not supported!", target);
+    }   
 }
 
 void outb(int left, int right)
 {
-    fprintf(out, "(vector 0 %d %d) ", left, right);
+    switch(target)
+    {
+        case HASKELL:
+            fprintf(out, "(0,%d,%d),", left, right);
+            break;
+
+        case SCHEME:
+            fprintf(out, "(vector 0 %d %d) ", left, right);
+            break;
+        
+        default:
+            printf("Language %u not supported!", target);
+    }
 }
 
 void outsize()
 {
-    fprintf(out, "(define height %d)\n", line);
-    fprintf(out, "(define width %d)", col);
+    switch(target)
+    {
+        case HASKELL:
+            fprintf(out, "height :: Int\n");
+            fprintf(out, "height = %d\n", line);
+            fprintf(out, "width :: Int\n");
+            fprintf(out, "width = %d\n", col);
+            break;
+
+        case SCHEME:
+            fprintf(out, "(define height %d)\n", line);
+            fprintf(out, "(define width %d)", col);
+            break;
+        
+        default:
+            printf("Language %u not supported!", target);
+    }
+}
+
+void outline()
+{
+    switch(target)
+    {
+        case HASKELL:
+            fprintf(out, "],[");
+    }
 }
 
 int main(int argc, char **argv)
 {
-    yyin = fopen(argv[1], "r");
-    out  = fopen("test", "w");
+    if (argc != 4)
+    {
+        printf("Unknown paramets, usage: zinho <language> <file>");
+    }
+
+    // setup language choice.
+    target = atoi(argv[1]);
+
+    // setup streams.
+    yyin = fopen(argv[2], "r");
+    out  = fopen(argv[3], "w");
 
     header();
     yylex();

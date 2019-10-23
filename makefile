@@ -24,17 +24,30 @@
 
 export APP = kakuro
 
-export TEST = $(TEST)
+export BOARDNUM = $(TEST)
 
 export SRCDIR   = $(CURDIR)/src
 export TESTDIR  = $(CURDIR)/test_cases
-export BOARDDIR = $(TESTDIR)/templates
+export BOARDDIR = $(TESTDIR)/boards
 
-cpp:
+zinho:
+	cd $(TESTDIR) && $(MAKE) zinho
+
+cpp: zinho
 	cd $(SRCDIR) && $(MAKE) cpp
 
-haskell:
+haskell: zinho
 	cd $(SRCDIR) && $(MAKE) haskell
 
-scheme:
+scheme: zinho
 	cd $(SRCDIR) && $(MAKE) scheme
+
+.PHONY: clean
+
+clean:
+	cd $(SRCDIR) && $(MAKE) clean
+	cd $(TESTDIR) && $(MAKE) clean
+
+veryclean:
+	cd $(SRCDIR) && $(MAKE) clean
+	cd $(TESTDIR) && $(MAKE) veryclean

@@ -1,26 +1,30 @@
-;; BEGIN DEFINES
+;  MIT License
+ 
+;  Copyright (c) 2019 Alek Frohlich, Nicolas Goeldner
+ 
+;  Permission is hereby granted, free of charge, to any person obtaining a copy
+;  of this software and associated documentation files (the "Software"), to deal
+;  in the Software without restriction, including without limitation the rights
+;  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+;  copies of the Software, and to permit persons to whom the Software is
+;  furnished to do so, subject to the following conditions:
+ 
+;  The above copyright notice and this permission notice shall be included in all
+;  copies or substantial portions of the Software.
+ 
+;  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+;  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+;  SOFTWARE.
+ 
+;  This program solves kakuro boards using backtracking.
 
-;; Kakuro board
-; (define board 
-;     (vector 
-;         (vector 0 0 0)  (vector 0 12 0) (vector 0 21 0) (vector 0 0 0)   (vector 0 16 0) (vector 0 13 0)
-;         (vector 0 0 17) (vector 1 0 0)  (vector 1 0 0)  (vector 0 22 11) (vector 1 0 0)  (vector 1 0 0)
-;         (vector 0 0 15) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
-;         (vector 0 0 0)  (vector 0 4 13) (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 0 10 0)
-;         (vector 0 0 18) (vector 1 0 0)  (vector 1 0 0)  (vector 1 0 0)   (vector 1 0 0)  (vector 1 0 0)
-;         (vector 0 0 10) (vector 1 0 0)  (vector 1 0 0)  (vector 0 0 14)  (vector 1 0 0)  (vector 1 0 0)))
-(define board
-    (vector (vector 0 0 0) (vector 0 14 0) (vector 0 29 0) (vector 0 10 0) (vector 0 0 0) (vector 0 0 0) (vector 0 0 0) (vector 0 24 0) (vector 0 16 0) (vector 0 22 0) (vector 0 0 0) (vector 0 0 0) 
-    (vector 0 0 23) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 3 0) (vector 0 0 0) (vector 0 12 24) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 24 0) (vector 0 0 0) 
-    (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 6 34) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 17 0) 
-    (vector 0 0 13) (vector 1 0 0) (vector 1 0 0) (vector 0 39 16) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 9 19) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
-    (vector 0 0 0) (vector 0 0 16) (vector 1 0 0) (vector 1 0 0) (vector 0 4 3) (vector 1 0 0) (vector 1 0 0) (vector 0 7 29) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
-    (vector 0 0 0) (vector 0 4 0) (vector 0 7 8) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 10 7) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 10 0) (vector 0 0 0) 
-    (vector 0 0 10) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 6 4) (vector 1 0 0) (vector 1 0 0) (vector 0 4 3) (vector 1 0 0) (vector 1 0 0) (vector 0 15 0) 
-    (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 4 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 4 11) (vector 1 0 0) (vector 1 0 0) 
-    (vector 0 0 0) (vector 0 0 16) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 0 11) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) 
-    (vector 0 0 0) (vector 0 0 0) (vector 0 0 13) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) (vector 0 0 0) (vector 0 0 0) (vector 0 0 7) (vector 1 0 0) (vector 1 0 0) (vector 1 0 0) )
-)
+(include "test.scm")            ;; Board, height and width.
+
+;; BEGIN DEFINES
 
 (define solved 0)               ;; Solved board.
 (define unsolvable 1)           ;; Unsolvable board.
@@ -30,9 +34,6 @@
 (define white 1)                ;; White position.
 
 (define limit 10)
-
-(define height 10)               ;; Height of board.
-(define width 12)                ;; Width of board.
 
 (define last_i (- height 1))    ;; Last possible index on collumn.
 (define last_j (- width 1))     ;; Last possible index on line.

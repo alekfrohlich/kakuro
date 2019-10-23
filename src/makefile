@@ -1,29 +1,42 @@
 .PHONY: clean
 
-APP = kakuro
+CC  = g++
+HC  = ghc
+SCM = guile -s
 
-HC = ghc
-CC = g++
+CPPDEPS = $(wildcard *.hpp)
+HSDEPS  = $(wildcard *.hs)
+SCMDEPS = $(wildcard *.scm)
 
-HTARGETS = kakuro.hs
-CTARGETS = kakuro.cpp
+ZINHO = $(TESTDIR)/zinho
 
-HDEPS = test.hs
-CDEPS = kakuro.hpp test.hpp
+cpp: $(APP).cpp $(CPPDEPS)
+	$(CC) $< -o $(APP)
+	@rm -f test.cpp
 
-haskell: $(HTARGETS) $(HDEPS)
-	$(HC) $(HTARGETS) $(HDEPS) -o $(APP)
-	@rm test.hs
+haskell: $(HSDEPS)
+	$(HC) $< -o $(APP)
+	@rm -f test.hs
+
+scheme: $(SCMDEPS)
+	$(SCM) $<
+	@rm -f test.scm
+
+# Build test dependencies.
+## integrate makes.
+test.cpp:
+	$(ZINHO) $(TEST)
+	mv $(TESTDIR) test.cpp
 
 test.hs:
-	@cp ../test_cases/test$(TEST).hs test.hs
+	$(ZINHO) $(TEST)
+	mv $(TESTDIR) test.cpp
 
-cpp: $(CTARGETS) $(CDEPS)
-	$(CC) $(CTARGETS) $(CDEPS) -o $(APP)
-	@rm test.hpp
-
-test.hpp:
-	@cp ../test_cases/test$(TEST).hpp test.hpp
+test.scm:
+	$(ZINHO) $(TEST)
+	mv $(TESTDIR) test.cpp
 
 clean:
-	@rm -f *.o *.hi $(APP)
+	@rm -f $(APP)
+	@rm -f *.o
+	@rm -f *.hi

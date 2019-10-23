@@ -29,7 +29,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int line = 0;
+int lastj = 0;
+
+int line = 1;
 int col  = 0;
 
 int left;
@@ -57,14 +59,16 @@ number [0-9]+
 
 {white}             { }
 
+"@"                 { lastj = 1; }
+
 "0"                 { outw(); col++; }
 
-{number}/"/"        { BEGIN BLACK; left = atoi(yytext); col++; }
+{number}/"/"        { BEGIN BLACK; left = atoi(yytext); }
 <BLACK>"/"          { }
 <BLACK>{number}     { right = atoi(yytext); outb(left, right); BEGIN INITIAL; col++; }
 
 "$"                 { yyterminate(); }
-"\n"                { line++; col = 0; outline(); }
+"\n"                { line++; col = 0; outline(); lastj = 0; }
 "."                 { }
 
 %%
@@ -113,7 +117,10 @@ void outw()
     switch(target)
     {
         case HASKELL:
-            fprintf(out, "(1,0,0),");
+            if (lastj)
+                fprintf(out, "(1,0,0)");
+            else
+                fprintf(out, "(1,0,0),");
             break;
 
         case SCHEME:
@@ -130,7 +137,10 @@ void outb(int left, int right)
     switch(target)
     {
         case HASKELL:
-            fprintf(out, "(0,%d,%d),", left, right);
+            if (lastj)
+                fprintf(out, "(0,%d,%d)", left, right);
+            else
+                fprintf(out, "(0,%d,%d),", left, right);
             break;
 
         case SCHEME:

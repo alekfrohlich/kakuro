@@ -27,7 +27,7 @@
 
 CC  = g++
 HC  = ghc
-SCM = guile -s
+SCM = chezscheme9.5
 
 CPPDEPS = $(APP).hpp test.hpp
 HSDEPS  = $(APP).hs test.hs
@@ -37,14 +37,16 @@ ZINHO = $(TESTDIR)/zinho
 
 cpp: $(APP).cpp $(CPPDEPS)
 	$(CC) $< -o $(APP)
+	./$(APP)
 	@rm -f test.cpp
 
 haskell: $(HSDEPS)
-	$(HC) $< -o $(APP)
+	$(HC) $^ -o $(APP)
+	./$(APP)
 	@rm -f test.hs
 
 scheme: $(SCMDEPS)
-	$(SCM) $<
+	$(SCM) --script $^
 	@rm -f test.scm
 
 # Build test dependencies.

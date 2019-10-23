@@ -24,9 +24,11 @@
 
 export APP = kakuro
 
+export TEST = $(TEST)
+
 export SRCDIR   = $(CURDIR)/src
-export TESTDIR = $(CURDIR)/test_cases
-export TEMPLDIR = $(TESTDIR)/templates
+export TESTDIR  = $(CURDIR)/test_cases
+export BOARDDIR = $(TESTDIR)/templates
 
 cpp:
 	cd $(SRCDIR) && $(MAKE) cpp

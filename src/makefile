@@ -48,17 +48,16 @@ scheme: $(SCMDEPS)
 	@rm -f test.scm
 
 # Build test dependencies.
-## integrate makes.
 test.cpp:
-	$(ZINHO) $(TEST)
+	$(ZINHO) $(BOARDDIR)/$(TEST)
 	mv $(TESTDIR) test.cpp
 
 test.hs:
-	$(ZINHO) $(TEST)
+	$(ZINHO) $(BOARDDIR)/$(TEST)
 	mv $(TESTDIR) test.cpp
 
 test.scm:
-	$(ZINHO) $(TEST)
+	$(ZINHO) $(BOARDDIR)/$(TEST)
 	mv $(TESTDIR) test.cpp
 
 clean:

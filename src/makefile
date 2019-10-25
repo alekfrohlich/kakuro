@@ -50,9 +50,10 @@ scheme: $(SCMDEPS)
 	@rm -f test.scm
 
 # Build test dependencies.
-test.cpp:
-	$(ZINHO) 1 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test
-	mv $(TESTDIR)/test test.cpp
+test.hpp:
+	$(ZINHO) 1 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test ; $(eval TMP := $(shell echo $?))
+	echo "\n\n\n $(TMP) \n\n\n"
+	mv $(TESTDIR)/test test.hpp 
 
 test.hs:
 	$(ZINHO) 2 $(BOARDDIR)/$(BOARDNUM) $(TESTDIR)/test

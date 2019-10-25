@@ -78,6 +78,11 @@ void header()
     switch(target)
     {
         case CPP:
+            fprintf(out, "#include <cstdlib>\n\n");
+            fprintf(out, "#ifndef __KAKURO__\n#define __KAKURO__\n");
+            fprintf(out, "#include \"kakuro.hpp\"\n#endif\n");
+
+            fprintf(out, "pos board[][$] = {{");
             break;
 
         case HASKELL:
@@ -99,6 +104,10 @@ void footer()
 {
     switch(target)
     {
+        case CPP:
+            fprintf(out, "}};\n");
+            break;
+
         case HASKELL:
             fprintf(out, "]]\n");
             break;
@@ -116,11 +125,18 @@ void outw()
 {
     switch(target)
     {
+        case CPP:
+            if (lastj)
+                fprintf(out, "{1,0,0}");
+            else
+                fprintf(out, "{1,0,0},");
+            break;
+
         case HASKELL:
             if (lastj)
-                fprintf(out, "(1,0,0)");
+                fprintf(out, "{1,0,0}");
             else
-                fprintf(out, "(1,0,0),");
+                fprintf(out, "{1,0,0},");
             break;
 
         case SCHEME:
@@ -136,6 +152,13 @@ void outb(int left, int right)
 {
     switch(target)
     {
+        case CPP:
+            if (lastj)
+                fprintf(out, "{0,%d,%d}", left, right);
+            else
+                fprintf(out, "{0,%d,%d},", left, right);
+            break;   
+
         case HASKELL:
             if (lastj)
                 fprintf(out, "(0,%d,%d)", left, right);
@@ -156,6 +179,13 @@ void outsize()
 {
     switch(target)
     {
+        case CPP:
+            fprintf(out, "const int HEIGHT = %d;\n", line);
+            fprintf(out, "const int WIDTH = %d;\n", col);
+            fprintf(out, "const int LAST_I = %d;\n", line-1);
+            fprintf(out, "const int LAST_J = %d;\n", col-1);
+            break;
+
         case HASKELL:
             fprintf(out, "height :: Int\n");
             fprintf(out, "height = %d\n", line);
@@ -177,6 +207,10 @@ void outline()
 {
     switch(target)
     {
+        case CPP:
+            fprintf(out, "},{");
+            break;
+
         case HASKELL:
             fprintf(out, "],[");
     }
@@ -201,4 +235,6 @@ int main(int argc, char **argv)
     footer();
 
     outsize();
+
+    return col;
 }

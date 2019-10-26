@@ -4,9 +4,9 @@ Kakuro is a cross-word like puzzle, here we present two board solvers, one writt
 
 ## Running kakuro
 
-To run kakuro, you must first choose an implementation and then a test case. There are two implementations, one in C++ and one in Haskell. For the former, five tests are available (#1 through #5), for the latter, only two have been implemented (#1 and #5).
+To run kakuro, you must first choose an implementation and then a test case. There are three implementations, one in C++, one in Haskell and one in Scheme. Currently two test cases are available: 2 and 91.
 
-Test cases are located under the `test_cases` directory and are copies of some of those found at [this site](https://www.janko.at/Raetsel/Kakuro/index.htm).
+Test cases are located under `test_cases/boards` and are copies of some of those found at [this site](https://www.janko.at/Raetsel/Kakuro/index.htm).
 
 After choosing the desired test, simply change directory to `src` and run:
 
@@ -19,10 +19,10 @@ where implementation can be 'cpp' or 'haskell' and number can vary between 1 and
 Here's an example where we build haskell's first test case:
 
 ```
-$ make haskell TEST=1
+$ make scheme TEST=2
 ```
 
-Now, after building the test suite, run the generated executable, name the same (kakuro) for any combination of test cases and implementations:
+Now, after building the test suite, run the generated executable (for compiled languages), name the same (kakuro) for any combination of test cases and implementations:
 
 ```
 $ ./kakuro
@@ -40,4 +40,3 @@ The solved board shall be printed back into the console.
 ```
 
 Here '*' represent black positions, whose value don't constitute the answer.
-

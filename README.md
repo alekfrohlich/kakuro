@@ -1,6 +1,6 @@
 # kakuro
 
-Kakuro is a cross-word like puzzle, here we present two board solvers, one written in C++, another in Haskell. Details about the rules can be found [here](https://www.conceptispuzzles.com/index.aspx?uri=puzzle/kakuro/rules).
+Kakuro is a cross-word like puzzle, here we present some implementations of board solvers in different languages. Details about the rules can be found [here](https://www.conceptispuzzles.com/index.aspx?uri=puzzle/kakuro/rules).
 
 ## Running kakuro
 
@@ -14,15 +14,15 @@ After choosing the desired test, simply change directory to `src` and run:
 $ make <implementation> TEST=<number> 
 ```
 
-where implementation can be 'cpp' or 'haskell' and number can vary between 1 and 5.
+where implementation can be 'cpp', 'haskell' or 'scheme' and number can be 2 or 91.
 
-Here's an example where we build haskell's first test case:
+Here's an example where we build the first test case:
 
 ```
 $ make scheme TEST=2
 ```
 
-Now, after building the test suite, run the generated executable (for compiled languages), name the same (kakuro) for any combination of test cases and implementations:
+Now, after building the test suite, run the generated executable (for compiled languages), named the same (kakuro) for any combination of test cases and implementations:
 
 ```
 $ ./kakuro

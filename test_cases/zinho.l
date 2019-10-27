@@ -154,6 +154,6 @@ int main(int argc, char **argv)
     yyin = fopen(argv[1], "r");
 
     declaration();
-    fprintf(out, "(define height %d)\n", line);
+    fprintf(out, "\n(define height %d)\n", line);
     fprintf(out, "(define width %d)\n", col);
 }

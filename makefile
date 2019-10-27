@@ -41,7 +41,7 @@ export LANGDIR  = $(TESTDIR)/languages
 # Target language not chosen.
 ifeq ($(MAKECMDGOALS), )
 $(error Missing target, \
-	chose one of the following implementations: cpp, haskel, scheme)
+	choose one of the following: cpp, haskel, scheme)
 endif
 
 # Test case not set.

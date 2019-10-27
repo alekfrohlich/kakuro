@@ -51,18 +51,19 @@ scheme: $(SCMDEPS)
 
 # Build test dependencies.
 test.hpp:
-	$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv $(TESTDIR)/test test.hpp 
+	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
+	mv test test.hpp 
 
 test.hs:
-	$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv $(TESTDIR)/test test.hs
+	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
+	mv test test.hs
 
 test.scm:
-	$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv $(TESTDIR)/test test.scm
+	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
+	mv test test.scm
 
 clean:
 	@rm -f $(APP)
 	@rm -f *.o
 	@rm -f *.hi
+	@rm -f test.*

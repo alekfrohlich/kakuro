@@ -22,13 +22,34 @@
 # 
 # This program solves kakuro boards using backtracking.
 
+.PHONY: zinho \
+		cpp haskell scheme \
+		clean veryclean
+
 export APP = kakuro
 
-export BOARDNUM = $(TEST)
+export BOARDNUM  = $(TEST)
+export LANG 	 = $(MAKECMDGOALS)
 
 export SRCDIR   = $(CURDIR)/src
 export TESTDIR  = $(CURDIR)/test_cases
 export BOARDDIR = $(TESTDIR)/boards
+export LANGDIR  = $(TESTDIR)/languages
+
+## Sanity checks
+
+# Target language not chosen.
+ifeq ($(MAKECMDGOALS), )
+$(error Missing target, \
+	chose one of the following implementations: cpp, haskel, scheme)
+endif
+
+# Test case not set.
+ifneq ($(MAKECMDGOALS), clean)
+ifndef TEST
+$(error TEST is not set)
+endif
+endif
 
 zinho:
 	cd $(TESTDIR) && $(MAKE) zinho
@@ -40,10 +61,7 @@ haskell: zinho
 	cd $(SRCDIR) && $(MAKE) haskell
 
 scheme: zinho
-	$(eval export LANG = scheme)
 	cd $(SRCDIR) && $(MAKE) scheme
-
-.PHONY: clean
 
 clean:
 	cd $(SRCDIR) && $(MAKE) clean
@@ -51,4 +69,3 @@ clean:
 
 veryclean:
 	cd $(SRCDIR) && $(MAKE) clean
-	cd $(TESTDIR) && $(MAKE) veryclean

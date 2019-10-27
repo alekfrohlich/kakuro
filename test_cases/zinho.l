@@ -102,6 +102,10 @@ void outb(char last)
 
 void declaration()
 {
+    #ifdef DEFINED
+        fprintf(out, BEGIN_DEFINE);
+    #endif
+
     #ifdef TYPED
         fprintf(out, BOARD_TYPE);
     #endif
@@ -110,26 +114,25 @@ void declaration()
         fprintf(out, SIZE(line,col));
     #endif
     
-    #if PRENAMED
-        fprintf(out, NAME);
+    fprintf(out, NAME);
+
+    #ifdef POSTSIZED
+        fprintf(out, SIZE(line,col));
     #endif
 
     #ifdef ASSIGNED
         fprintf(out, ASSIGN);
     #endif
     
-    #ifdef POSTSIZED
-        fprintf(out, SIZE(line,col));
-    #endif
-
     fprintf(out, BEGIN_BOARD);
-
-    #ifdef POSTNAMED
-        fprintf(out, NAME);
-    #endif
 
     yylex();
     fprintf(out, END_BOARD);
+    
+    #ifdef DEFINED
+        fprintf(out, END_DEFINE);
+    #endif
+
 }
 
 int main(int argc, char **argv)
@@ -151,6 +154,6 @@ int main(int argc, char **argv)
     yyin = fopen(argv[1], "r");
 
     declaration();
-    yyrestart(yyin);
-    printf("%d %d\n", line, col); 
+    fprintf(out, "(define height %d)\n", line);
+    fprintf(out, "(define width %d)\n", col);
 }

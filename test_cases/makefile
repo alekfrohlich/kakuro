@@ -22,7 +22,6 @@
 # 
 # This program solves kakuro boards using backtracking.
 
-export LANGDIR = languages
 
 zinho: zinho.l language.h
 	flex $<
@@ -33,9 +32,7 @@ language.h:
 	cp $(LANGDIR)/$(LANG).h language.h
 
 clean:
+	@rm -f zinho
 	@rm -f lex.yy.c
 	@rm -f test
-
-veryclean:
-	@rm -f zinho
-	$(MAKE) clean
+	@rm -f language.h

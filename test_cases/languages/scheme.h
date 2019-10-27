@@ -21,8 +21,12 @@
 #undef  PRENAMED
 #define POSTNAMED
 
+#define DEFINED
+#define BEGIN_DEFINE "(define"
+#define END_DEFINE   ")"
+
 #undef  SIZE
 
-#define BEGIN_BOARD  "(define "
+#define BEGIN_BOARD  "(vector "
 #define END_BOARD    ")"
 #define NAME         " board "

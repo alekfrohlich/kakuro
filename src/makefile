@@ -47,7 +47,7 @@ haskell: $(HSDEPS)
 
 scheme: $(SCMDEPS)
 	$(SCM) --script $^
-	# @rm -f test.scm
+	@rm -f test.scm
 
 # Build test dependencies.
 test.hpp:

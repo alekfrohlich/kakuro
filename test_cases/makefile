@@ -23,47 +23,16 @@
 # This program solves kakuro boards using backtracking.
 
 
-.PHONY: clean
+zinho: zinho.l language.h
+	flex $<
+	gcc lex.yy.c -o zinho
+	@rm -f language.h
 
-CC  = g++
-HC  = ghc
-SCM = chezscheme9.5
-
-CPPDEPS = $(APP).hpp test.hpp
-HSDEPS  = $(APP).hs test.hs
-SCMDEPS = $(APP).scm test.scm
-
-ZINHO = $(TESTDIR)/zinho
-
-cpp: $(APP).cpp $(CPPDEPS)
-	$(CC) $< -o $(APP)
-	./$(APP)
-	@rm -f test.cpp
-
-haskell: $(HSDEPS)
-	$(HC) $^ -o $(APP)
-	./$(APP)
-	@rm -f test.hs
-
-scheme: $(SCMDEPS)
-	$(SCM) --script $^
-	# @rm -f test.scm
-
-# Build test dependencies.
-test.hpp:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.hpp 
-
-test.hs:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.hs
-
-test.scm:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.scm
+language.h:
+	cp $(LANGDIR)/$(LANG).h language.h
 
 clean:
-	@rm -f $(APP)
-	@rm -f *.o
-	@rm -f *.hi
-	@rm -f test.*
+	@rm -f zinho
+	@rm -f lex.yy.c
+	@rm -f test
+	@rm -f language.h

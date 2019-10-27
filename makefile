@@ -22,48 +22,50 @@
 # 
 # This program solves kakuro boards using backtracking.
 
+.PHONY: zinho \
+		cpp haskell scheme \
+		clean veryclean
 
-.PHONY: clean
+export APP = kakuro
 
-CC  = g++
-HC  = ghc
-SCM = chezscheme9.5
+export BOARDNUM  = $(TEST)
+export LANG 	 = $(MAKECMDGOALS)
 
-CPPDEPS = $(APP).hpp test.hpp
-HSDEPS  = $(APP).hs test.hs
-SCMDEPS = $(APP).scm test.scm
+export SRCDIR   = $(CURDIR)/src
+export TESTDIR  = $(CURDIR)/test_cases
+export BOARDDIR = $(TESTDIR)/boards
+export LANGDIR  = $(TESTDIR)/languages
 
-ZINHO = $(TESTDIR)/zinho
+## Sanity checks
 
-cpp: $(APP).cpp $(CPPDEPS)
-	$(CC) $< -o $(APP)
-	./$(APP)
-	@rm -f test.cpp
+# Target language not chosen.
+ifeq ($(MAKECMDGOALS), )
+$(error Missing target, \
+	choose one of the following: cpp, haskel, scheme)
+endif
 
-haskell: $(HSDEPS)
-	$(HC) $^ -o $(APP)
-	./$(APP)
-	@rm -f test.hs
+# Test case not set.
+ifneq ($(MAKECMDGOALS), clean)
+ifndef TEST
+$(error TEST is not set)
+endif
+endif
 
-scheme: $(SCMDEPS)
-	$(SCM) --script $^
-	# @rm -f test.scm
+zinho:
+	cd $(TESTDIR) && $(MAKE) zinho
 
-# Build test dependencies.
-test.hpp:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.hpp 
+cpp: zinho 
+	cd $(SRCDIR) && $(MAKE) cpp
 
-test.hs:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.hs
+haskell: zinho
+	cd $(SRCDIR) && $(MAKE) haskell
 
-test.scm:
-	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
-	mv test test.scm
+scheme: zinho
+	cd $(SRCDIR) && $(MAKE) scheme
 
 clean:
-	@rm -f $(APP)
-	@rm -f *.o
-	@rm -f *.hi
-	@rm -f test.*
+	cd $(SRCDIR) && $(MAKE) clean
+	cd $(TESTDIR) && $(MAKE) clean
+
+veryclean:
+	cd $(SRCDIR) && $(MAKE) clean

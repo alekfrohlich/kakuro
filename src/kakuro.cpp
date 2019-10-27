@@ -194,7 +194,6 @@ int main()
 {
     using namespace std;
 
-    init_board();
     idx init_p = next_pos(0,0);
     if (solve(init_p.x, init_p.y) == SOLVED)
         print_solution();

@@ -1,4 +1,5 @@
 %option noyywrap
+%S SECOND SCANNING
 %x BLACK
 
 %{
@@ -28,213 +29,128 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
-int lastj = 0;
-
-int line = 1;
-int col  = 0;
-
-int left;
-int right;
-
-FILE *out;
-
-void outw();
-void outb(int,int);
-void outline();
-
-enum languages {
-    CPP = 1,
-    HASKELL,
-    SCHEME,
-};
-
-enum languages target;
+#include "language.h"
+#include "zinho.h"
 %}
 
 white  [ \t]+
 number [0-9]+
+%%
+    if (finished)
+        BEGIN(SCANNING);
+
+{white}                             { }
+
+<INITIAL>"0"                        |
+<INITIAL>{number}"/"{number}        { col++; }
+<INITIAL>"\n"                       { line++; BEGIN(SECOND); }
+<SECOND>"\n"                        { line++; }
+
+<SCANNING>"0"                       {
+                                        colno++; 
+                                        if (colno == (col - 1))
+                                            outw(1);
+                                        else
+                                            outw(0);
+                                    }
+<SCANNING>{number}/"/"              {
+                                        left = atoi(yytext);
+                                        input();
+                                        BEGIN(BLACK);
+                                    }
+<BLACK>{number}                     {
+                                        colno++;
+                                        right = atoi(yytext);
+                                        if (colno == (col - 1))
+                                            outb(1);
+                                        else
+                                            outb(0);
+                                        BEGIN(SCANNING);
+                                    }
+
+.                                   |
+"\n"                                { }
 
 %%
 
-{white}             { }
-
-"@"                 { lastj = 1; }
-
-"0"                 { outw(); col++; }
-
-{number}/"/"        { BEGIN BLACK; left = atoi(yytext); }
-<BLACK>"/"          { }
-<BLACK>{number}     { right = atoi(yytext); outb(left, right); BEGIN INITIAL; col++; }
-
-"$"                 { yyterminate(); }
-"\n"                { line++; col = 0; outline(); lastj = 0; }
-"."                 { }
-
-%%
-
-void header()
+// pos board[line][col] = {{{1, 2, 3}, ...}}
+// board = [[(1, 2, 3), []]]
+// (define board (vector (vector 1 0 0) (vector 0 12 2)))
+void outw(char last)
 {
-    switch(target)
-    {
-        case CPP:
-            fprintf(out, "#include <cstdlib>\n\n");
-            fprintf(out, "#ifndef __KAKURO__\n#define __KAKURO__\n");
-            fprintf(out, "#include \"kakuro.hpp\"\n#endif\n");
+    fprintf(out, BEGIN_VEC);
+    fprintf(out, "1%s0%s0", SEPARATOR, SEPARATOR);
+    fprintf(out, END_VEC);
 
-            fprintf(out, "pos board[][$] = {{");
-            break;
-
-        case HASKELL:
-            fprintf(out, "module TestCases (height, width, kakuroBoard) where\n");
-            fprintf(out, "kakuroBoard :: [[(Int, Int, Int)]]\n");
-            fprintf(out, "kakuroBoard = [[");
-            break;
-
-        case SCHEME:
-           fprintf(out, "(define board (vector ");
-            break;
-        
-        default:
-            printf("Language %u not supported!", target);
-    }    
+    #if DIMENSION > 2
+    if(!last)
+    #endif
+        fprintf(out, SEPARATOR);
 }
 
-void footer()
+void outb(char last)
 {
-    switch(target)
-    {
-        case CPP:
-            fprintf(out, "}};\n");
-            break;
+    fprintf(out, BEGIN_VEC);
+    fprintf(out, "0%s%d%s%d", SEPARATOR, left, SEPARATOR, right);
+    fprintf(out, END_VEC);
 
-        case HASKELL:
-            fprintf(out, "]]\n");
-            break;
-
-        case SCHEME:
-            fprintf(out, "))\n");
-            break;
-        
-        default:
-            printf("Language %u not supported!", target);
-    }      
+    #if DIMENSION > 2
+    if(!last)
+    #endif
+        fprintf(out, SEPARATOR);
 }
 
-void outw()
+void declaration()
 {
-    switch(target)
-    {
-        case CPP:
-            if (lastj)
-                fprintf(out, "{1,0,0}");
-            else
-                fprintf(out, "{1,0,0},");
-            break;
+    #ifdef TYPED
+        fprintf(out, BOARD_TYPE);
+    #endif
+    
+    #ifdef PRESIZED
+        fprintf(out, SIZE(line,col));
+    #endif
+    
+    #if PRENAMED
+        fprintf(out, NAME);
+    #endif
 
-        case HASKELL:
-            if (lastj)
-                fprintf(out, "{1,0,0}");
-            else
-                fprintf(out, "{1,0,0},");
-            break;
+    #ifdef ASSIGNED
+        fprintf(out, ASSIGN);
+    #endif
+    
+    #ifdef POSTSIZED
+        fprintf(out, SIZE(line,col));
+    #endif
 
-        case SCHEME:
-            fprintf(out, "(vector 1 0 0) ");
-            break;
-        
-        default:
-            printf("Language %u not supported!", target);
-    }   
-}
+    fprintf(out, BEGIN_BOARD);
 
-void outb(int left, int right)
-{
-    switch(target)
-    {
-        case CPP:
-            if (lastj)
-                fprintf(out, "{0,%d,%d}", left, right);
-            else
-                fprintf(out, "{0,%d,%d},", left, right);
-            break;   
+    #ifdef POSTNAMED
+        fprintf(out, NAME);
+    #endif
 
-        case HASKELL:
-            if (lastj)
-                fprintf(out, "(0,%d,%d)", left, right);
-            else
-                fprintf(out, "(0,%d,%d),", left, right);
-            break;
-
-        case SCHEME:
-            fprintf(out, "(vector 0 %d %d) ", left, right);
-            break;
-        
-        default:
-            printf("Language %u not supported!", target);
-    }
-}
-
-void outsize()
-{
-    switch(target)
-    {
-        case CPP:
-            fprintf(out, "const int HEIGHT = %d;\n", line);
-            fprintf(out, "const int WIDTH = %d;\n", col);
-            fprintf(out, "const int LAST_I = %d;\n", line-1);
-            fprintf(out, "const int LAST_J = %d;\n", col-1);
-            break;
-
-        case HASKELL:
-            fprintf(out, "height :: Int\n");
-            fprintf(out, "height = %d\n", line);
-            fprintf(out, "width :: Int\n");
-            fprintf(out, "width = %d\n", col);
-            break;
-
-        case SCHEME:
-            fprintf(out, "(define height %d)\n", line);
-            fprintf(out, "(define width %d)", col);
-            break;
-        
-        default:
-            printf("Language %u not supported!", target);
-    }
-}
-
-void outline()
-{
-    switch(target)
-    {
-        case CPP:
-            fprintf(out, "},{");
-            break;
-
-        case HASKELL:
-            fprintf(out, "],[");
-    }
+    yylex();
+    fprintf(out, END_BOARD);
 }
 
 int main(int argc, char **argv)
 {
-    if (argc != 4)
+    if (argc != 2)
     {
-        printf("Unknown paramets, usage: zinho <language> <file>");
+        printf("Unknown paramets, usage: zinho <file>");
     }
 
-    // setup language choice.
-    target = atoi(argv[1]);
-
     // setup streams.
-    yyin = fopen(argv[2], "r");
-    out  = fopen(argv[3], "w");
+    yyin = fopen(argv[1], "r");
+    out  = fopen("test", "w");
 
-    header();
     yylex();
-    footer();
+    finished = 1;
+    
+    // restart file.
+    fclose(yyin);
+    yyin = fopen(argv[1], "r");
 
-    outsize();
-
-    return col;
+    declaration();
+    yyrestart(yyin);
+    printf("%d %d\n", line, col); 
 }

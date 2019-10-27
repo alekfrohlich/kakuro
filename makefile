@@ -33,13 +33,14 @@ export BOARDDIR = $(TESTDIR)/boards
 zinho:
 	cd $(TESTDIR) && $(MAKE) zinho
 
-cpp: zinho
+cpp: zinho 
 	cd $(SRCDIR) && $(MAKE) cpp
 
 haskell: zinho
 	cd $(SRCDIR) && $(MAKE) haskell
 
 scheme: zinho
+	$(eval export LANG = scheme)
 	cd $(SRCDIR) && $(MAKE) scheme
 
 .PHONY: clean

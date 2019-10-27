@@ -22,9 +22,15 @@
 # 
 # This program solves kakuro boards using backtracking.
 
-zinho: zinho.l
+export LANGDIR = languages
+
+zinho: zinho.l language.h
 	flex $<
 	gcc lex.yy.c -o zinho
+	@rm -f language.h
+
+language.h:
+	cp $(LANGDIR)/$(LANG).h language.h
 
 clean:
 	@rm -f lex.yy.c

@@ -54,7 +54,6 @@ scheme: $(SCMDEPS)
 prolog: $(PLDEPS)
 	$(PL) -o $(APP) -c $^
 	@rm -f board.pl
-	./$(APP)
 
 # Build test dependencies.
 test.hpp:

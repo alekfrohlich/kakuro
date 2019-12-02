@@ -33,7 +33,7 @@ PL  := swipl
 CPPDEPS := $(APP).hpp test.hpp
 HSDEPS  := $(APP).hs test.hs
 SCMDEPS := $(APP).scm test.scm
-PLDEPS  := $(APP).pl
+PLDEPS  := $(APP).pl board.pl
 
 ZINHO := $(TESTDIR)/zinho
 
@@ -51,10 +51,10 @@ scheme: $(SCMDEPS)
 	$(SCM) --script $^
 	@rm -f test.scm
 
-.PHONY: prolog
-
 prolog: $(PLDEPS)
 	$(PL) -o $(APP) -c $^
+	@rm -f board.pl
+	./$(APP)
 
 # Build test dependencies.
 test.hpp:
@@ -68,6 +68,11 @@ test.hs:
 test.scm:
 	@$(ZINHO) $(BOARDDIR)/$(BOARDNUM)
 	mv test test.scm
+
+board.pl:
+	g++ -o nicolas ../test_cases/nicolas.cpp
+	./nicolas < ../test_cases/boards/$(TEST) > ../src/board.pl
+	@rm -f nicolas
 
 clean:
 	@rm -f $(APP)

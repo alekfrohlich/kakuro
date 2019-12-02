@@ -1,6 +1,6 @@
 % constraint logic programming over finite domains CLP(FD)
 :- use_module(library(clpfd)).
-:- use_module(library(lists)).
+:- [board].
 
 
 % constraint white cells to [1,9]
@@ -65,27 +65,20 @@ checkSequence([Black|Whites]) :-
 % solves kakuro board
 kakuro(Rows) :-
     % make sure white cells are in [1,9]
+    problem(Rows),
     maplist(checkWhiteLine, Rows),
     % get columns
     transpose(Rows, Columns),
     % apply constraints over rows and columns
     maplist(checkRawLineSequence, Rows),
     maplist(checkRawColSequence, Columns).
-
-problem(1, Rows) :-
-    Rows = ([[[0,0,0], [0,12,0], [0,21,0], [0,0,0], [0,16,0], [0,13,0]]
-            ,[[0,0,17], [1,_,0], [1,_,0], [0,22,11], [1,_,0], [1,_,0]]
-            ,[[0,0,15], [1,_,0], [1,_,0], [1,_,0], [1,_,0], [1,_,0]]
-            ,[[0,0,0], [0,4,13], [1,_,0], [1,_,0], [1,_,0], [0,10,0]]
-            ,[[0,0,18], [1,_,0], [1,_,0], [1,_,0], [1,_,0], [1,_,0]]
-            ,[[0,0,10], [1,_,0], [1,_,0], [0,0,14], [1,_,0], [1,_,0]]]).
 %
 
 %
 % print rows
 printRow(Row) :-
     maplist(labeling([ff]), Row).
-% problem(1, Rows), kakuro(Rows), maplist(printRow, Rows), maplist(writeln, Rows).
+% kakuro(Rows), maplist(printRow, Rows), maplist(writeln, Rows).
 
 % [[[0,0,0], [0,14,0], [0,29,0], [0,10,0], [0,0,0], [0,0,0], [0,0,0], [0,24,0], [0,16,0], [0,22,0], [0,0,0], [0,0,0]]
 % ,[[0,0,23], [1,_,0], [1,_,0], [1,_,0], [0,3,0], [0,0,0], [0,12,24], [1,_,0], [1,_,0], [1,_,0], [0,24,0], [0,0,0]]

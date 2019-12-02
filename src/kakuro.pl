@@ -83,3 +83,4 @@ printRow(Row) :-
 % entry point
 main :-
     kakuro(Rows), maplist(printRow, Rows), maplist(writeln, Rows).
+%
